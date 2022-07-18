@@ -1,0 +1,193 @@
+<?php
+/**
+* @copyright	Copyright (C) 2013 Jsn Project company. All rights reserved.
+* @license		http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+* @package		Easy Profile
+* website		www.easy-profile.com
+* Technical Support : Forum -	http://www.easy-profile.com/support.html
+*/
+
+defined('_JEXEC') or die;
+//define( 'DS', DIRECTORY_SEPARATOR );
+// Add Custom Fields
+//if(class_exists('FieldsHelper')) FieldsHelper::prepareForm('com_users.user', $this->form, $this->data);
+// Set Title
+$this->document->setTitle($this->document->title.' - '.JsnHelper::getFormatName($this->data));
+$this->document->addScript('/templates/ryba/js/chosen.jquery.min.js');
+// Set Pathway
+JFactory::getApplication()->getPathway()->addItem(JsnHelper::getFormatName($this->data));
+// Load Events Dispatcher
+$dispatcher	= JEventDispatcher::getInstance();
+$this->user=JsnHelper::getUser($this->data->id);
+$avatar=$this->form->getField('avatar');
+//var_dump($this->form->getInput('firstname'));
+$db = JFactory::getDbo();
+$query = 'SELECT #__categories.id, #__categories.title FROM #__categories, #__fields_values WHERE  #__fields_values.field_id = 29 AND #__fields_values.item_id = '. $this->user->id .' AND #__categories.id in (#__fields_values.value) ORDER BY #__categories.title ASC';
+$db->setQuery($query);
+$category = $db->loadRowList();
+
+function getService($id, $user_id){
+	$base = JFactory::getDbo();
+	$query = 'SELECT cont.id,cont.title,cont.alias,cont.state FROM #__categories as cat,#__content as cont WHERE cat.parent_id = '. $id .' AND cont.catid in (cat.id) AND cont.created_by = '. $user_id;
+	$base->setQuery($query);
+	$service = $base->loadAssocList();
+	if (!empty($service)){
+		$html = '';
+		foreach ($service as $item){
+			$html .= '<div class="priceList__item d-flex justify-content-between">';
+			$html .= '<div class="priceList__item-coll">'.$item['title'].'</div>';
+			$html .= '<div class="icons-coll d-flex align-items-center">';
+			if ($item['state'] == 0){
+				$html .= '<button class="btn_disable m-1"><i class="fa fa-times" aria-hidden="true" title="На модерации"></i></button>';
+			} else {
+				$html .= '<button class="btn_enable m-1"><i class="fa fa-check" aria-hidden="true" title="Опубликовано"></i></button>';	
+			}				
+			$html .= '<button class="btn_enable m-1"><a href="/cabinet/dobavit-uslugu/?s_id=' . $item['id'] .'"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></button></button>';
+			$html .= '<button class="btn_enable m-1 del_serv" data-id="'.$item['id'].'" data-name="'.$item['title'].'"><i class="fa fa-trash-o" aria-hidden="true"></i></button>';
+			$html .= '</div></div>';
+		};
+		echo $html;
+	} else {
+		echo '<div class="priceList__item"><div class="priceList__item-coll">В этом разделе услуги не созданы</div><div class="clearFloat"></div></div>';
+	}
+}
+
+?>
+<!-- Main Container -->
+
+<div class="jsn-p">
+
+	<?php 
+		echo(implode(' ',$dispatcher->trigger('renderBeforeProfile',array($this->data,$this->config))));
+	?>
+
+	<div class="jsn-p-opt">
+		<?php if (JFactory::getApplication()->input->get('back')=='1') : ?>
+				<?php if(JFactory::getUser()->id == $this->data->id) $other_id=''; else $other_id='&user_id='.$this->data->id; ?> 
+				<a class="btn btn-xs btn-default" href="#" onclick="window.history.back();return false;">
+						<i class="jsn-icon jsn-icon-share"></i> <?php echo JText::_('COM_JSN_BACK'); ?></a>
+		<?php endif; ?>
+		<?php if (JFactory::getUser()->id == $this->data->id) : ?> 
+				<a class="btn btn-xs btn-default" href="<?php echo JRoute::_('index.php?option=com_jsn&view=profile&layout=edit',false);?>">
+						<i class="jsn-icon jsn-icon-cog"></i> <?php echo JText::_('COM_USERS_EDIT_PROFILE'); ?></a>
+				<a class="btn btn-xs btn-default" href="<?php echo JRoute::_('index.php?option=com_jsn&view=orders',false);?>">
+						<i class="jsn-icon jsn-icon-cog"></i> <?php echo JText::_('Записи'); ?></a>
+		<?php endif; ?>
+		<?php if ($this->config->get('profile_contact_btn',1) && JFactory::getUser()->id != $this->data->id) :
+			$db=JFactory::getDbo();
+			$query=$db->getQuery(true)->select($db->quoteName('id'))->from('#__contact_details as c')->where($db->quoteName('user_id').'='.$this->data->id)->where($db->quoteName('published').'=1');
+			$db->setQuery($query);
+			$contactMenu=JFactory::getApplication()->getMenu()->getItems('link','index.php?option=com_contact&view=featured', true);
+			if(count($contactMenu)) $cItemid = $contactMenu->id;
+			else $cItemid='';
+			if($contact=$db->loadResult()) : ?>
+					<a class="btn btn-xs btn-default" href="<?php echo JRoute::_('index.php?option=com_contact&view=contact&Itemid='.$cItemid.'&id='.$contact,false);?>">
+						<i class="jsn-icon jsn-icon-paper-plane"></i> <?php echo JText::_('JGLOBAL_EMAIL'); ?></a>
+			<?php endif; ?>
+		<?php endif; ?>
+		<?php 
+			//echo(implode(' ',$dispatcher->trigger('renderProfileButtons',array($this->data,$this->config))));
+		?>
+	</div>
+
+	<!-- Top Container -->
+	<div class="jsn-p-top <?php echo ($avatar ? 'jsn-p-top-a' : ''); ?>">
+
+		<!-- Avatar Container -->
+		<?php
+			if($avatar) :
+		?> 
+			<div class="jsn-p-avatar">
+				<?php
+					echo $this->user->getField('avatar');
+				?>
+			</div>
+		<?php
+			endif;
+		?>
+
+		<!-- Title Container -->
+		<div class="jsn-p-title">
+			<h3>
+				<?php echo $this->user->getField('formatname'); ?>
+			</h3>
+
+			<?php if($this->config->get('status',1)) : ?>	
+				<?php echo $this->user->getField('status'); ?>
+			<?php endif; ?>
+		</div>
+
+		<!-- Before Fields Container -->
+		<div class="jsn-p-before-fields">
+				<?php 
+					$registerdate=$this->form->getField('registerdate');
+					$lastvisitdate=$this->form->getField('lastvisitdate');
+					if(0) : // && $registerdate || $lastvisitdate ) : ?>
+						<div class="jsn-p-dates">
+							<?php if($registerdate) : ?>
+							<div class="jsn-p-date-reg">
+								<b><?php echo JText::_('COM_JSN_MEMBER_SINCE'); ?></b> <?php echo $this->user->getField('registerdate'); ?>
+							</div>
+							<?php endif; ?>
+							<?php if($lastvisitdate) : ?>
+							<div class="jsn-p-date-last">
+								<b><?php echo JText::_('COM_JSN_LASTVISITDATE'); ?></b> <?php echo $this->user->getField('lastvisitdate'); ?>
+							</div>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+				<?php 
+				echo(implode(' ',$dispatcher->trigger('renderBeforeFields',array($this->data,$this->config))));
+				?>
+		</div>		
+	</div>
+
+	<!-- Fields Container -->
+	<form class="jsn-p-fields">
+	<?php
+		$tabs=$dispatcher->trigger('renderTabs',array($this->data,$this->config)); 
+		$fields_output=implode(' ',$dispatcher->trigger('renderTabBeforeFields',array($this->data,$this->config)));
+		$fields_output.=$this->loadTemplate('fields');
+		$fields_output.=$this->loadTemplate('params');
+		$fields_output.=implode(' ',$dispatcher->trigger('renderTabAfterFields',array($this->data,$this->config)));
+		if($this->config->get('profile_fg_tabs',1)) echo($fields_output);
+		else echo('<fieldset><legend>'.JText::_('COM_JSN_PROFILE_INFO').'</legend><div>'.$fields_output.'</div></fieldset>');
+	
+		$titles=array();
+		$contents=array();
+	
+		foreach($tabs as $tab)
+		{
+			if (is_object($tab[0]))
+		    {
+		        foreach ($tab as $tabobject)
+		        {
+		            $contents[]='<fieldset><legend>'.$tabobject->title.'</legend>'.$tabobject->content.'</fieldset>';
+		        }
+		    }
+		    else
+				$contents[]='<fieldset><legend>'.$tab[0].'</legend>'.$tab[1].'</fieldset>';
+		}
+		echo(implode(' ',$contents));?>
+	</form>
+	<div class="jsn-p-bottom">
+		<div class="jsn-p-after-fields">
+			<?php 
+				echo(implode(' ',$dispatcher->trigger('renderAfterFields',array($this->data,$this->config))));
+			?>
+		</div>
+	</div>
+	<div style="display:none;" id="del-images">
+		<div>
+			<h3>Вы действительно желаете удалить</h3>
+			<div class="del-img">
+				<img src="" alt="">
+			</div>
+			<div class="del-but d-flex jsn-p">
+				<input type="button" class="btn btn-xs btn-default goDel" value="Да" data-url="">
+				<input type="button" class="btn btn-xs btn-default" value="Нет" onclick="jQuery.fancybox.close();">
+			</div>
+		</div>	
+	</div>
+</div>
+<?php echo(implode(' ',$dispatcher->trigger('renderAfterProfile',array($this->data,$this->config)))); ?>

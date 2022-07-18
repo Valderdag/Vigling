@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="params">
+		<fieldset
+			name="images" 
+			label="COM_JSN_IMAGES_FIELDSET_LABEL"
+		>
+
+			<field
+				label="COM_JSN_images_PARAM_WIDTH"
+				name="images_width"
+				type="text"
+				filter="int"
+				default="200"
+				size="4"
+			/>
+			
+			<field
+				label="COM_JSN_images_PARAM_HEIGHT"
+				name="images_height"
+				type="text"
+				filter="int"
+				default="200"
+				size="4"
+			/>
+			
+			<field
+				label="COM_JSN_images_PARAM_THUMBWIDTH"
+				name="images_thumbwidth"
+				type="text"
+				filter="int"
+				default="75"
+				size="4"
+			/>
+			
+			<field
+				label="COM_JSN_images_PARAM_THUMBHEIGHT"
+				name="images_thumbheight"
+				type="text"
+				filter="int"
+				default="75"
+				size="4"
+			/>
+			
+			<field
+				name="images_defaultvalue"
+				label="COM_JSN_GENERAL_DEFAULTVALUE"
+				description ="COM_JSN_GENERAL_DEFAULTVALUE_DESC"
+				type="media"
+			/>		
+
+			<field
+				label="COM_JSN_UPLOADPATH"
+				description="COM_JSN_UPLOADPATH_DESC"
+				name="images_path"
+				type="text"
+				filter="string"
+				default="images/profiler/"
+				hint="images/profiler/"
+			/>
+
+		</fieldset>
+	</fields>
+</form>
