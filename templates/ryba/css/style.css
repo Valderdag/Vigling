@@ -425,6 +425,8 @@ input.invalid{border-bottom:1px solid #9d261d}
 .pagination li:last-child{margin-right:0}
 .pagination li a{color:#000}
 .pagination li a.active{color:#F9CE54}
+li a{color:#000}
+li a.active{color:#F9CE54}
 .bottom__masters-left{float:left;width:440px}
 .bottom__masters-right{float:right}
 .bottom__masters-left h2{color:#000;font-family:"GothamPro-Bold";font-size:24px;font-weight:700;line-height:54px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:30px}

@@ -230,7 +230,7 @@ function pagination_item_inactive(&$item)
 	{
 		$aria = JText::sprintf('JLIB_HTML_PAGE_CURRENT', $item->text);
 
-		return '<li class="active hidden-phone"><a aria-current="true" aria-label="' . $aria . '">' . $item->text . '</a></li>';
+		return '<li class="active hidden-phone" style="color: #F9CE54; font-weight: 900"><a aria-current="true" aria-label="' . $aria . '">' . $item->text . '</a></li>';
 	}
 
 	// Doesn't match any other condition, render a normal item
